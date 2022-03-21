@@ -1,0 +1,58 @@
+{
+  "id": "https://pinggg.mywire.org/wallet/identity/v2",
+  "verificationMethod": [
+    {
+      "id": "https://pinggg.mywire.org/wallet/identity/v2/verificationMethod/JsonWebKey2020/AirlineSignKey-1",
+      "type": "JsonWebKey2020",
+      "controller": "https://pinggg.mywire.org/wallet/identity/v2",
+      "publicKeyJwk": {
+        "x5c": [
+          "MIIBXjCCAQSgAwIBAgIGAX8xj/QuMAoGCCqGSM49BAMCMDYxNDAyBgNVBAMMK0FwTXhyY0lIMDdTVVZTTEZ4dk5qUHJ2ME85dEhQWjh6dFk3MDdBR1E2U3cwHhcNMjIwMjI1MTU0NjMyWhcNMjIxMjIyMTU0NjMyWjA2MTQwMgYDVQQDDCtBcE14cmNJSDA3U1VWU0xGeHZOalBydjBPOXRIUFo4enRZNzA3QUdRNlN3MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEvzTnMScrMgVDdcRY/8ql/Is2tTxxgDSHCG0SMwEzG/QuHJPXvPmJU+D66AglMznUxTkZ6tx3EOJ+inD43e99cDAKBggqhkjOPQQDAgNIADBFAiAXxauGC85yTv0CM2bSL7rs7d/gRiSqKHKdoq5109VtFAIhANd3bWjka5n+pyTGN0p+fRoRuOLm0MbvK8Gv0jXesJLv"
+        ],
+        "kty": "EC",
+        "use": "sig",
+        "crv": "P-256",
+        "kid": "ApMxrcIH07SUVSLFxvNjPrv0O9tHPZ8ztY707AGQ6Sw",
+        "x": "vzTnMScrMgVDdcRY_8ql_Is2tTxxgDSHCG0SMwEzG_Q",
+        "y": "LhyT17z5iVPg-ugIJTM51MU5GercdxDifopw-N3vfXA",
+        "alg": "ES256"
+      }
+    },
+    {
+      "id": "https://pinggg.mywire.org/wallet/identity/v2/verificationMethod/JsonWebKey2020/AccessTokenService-1",
+      "type": "JsonWebKey2020",
+      "controller": "https://pinggg.mywire.org/wallet/identity/v2",
+      "publicKeyJwk": {
+        "x5c": [
+          "MIIBXjCCAQSgAwIBAgIGAX8xj/QuMAoGCCqGSM49BAMCMDYxNDAyBgNVBAMMK0FwTXhyY0lIMDdTVVZTTEZ4dk5qUHJ2ME85dEhQWjh6dFk3MDdBR1E2U3cwHhcNMjIwMjI1MTU0NjMyWhcNMjIxMjIyMTU0NjMyWjA2MTQwMgYDVQQDDCtBcE14cmNJSDA3U1VWU0xGeHZOalBydjBPOXRIUFo4enRZNzA3QUdRNlN3MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEvzTnMScrMgVDdcRY/8ql/Is2tTxxgDSHCG0SMwEzG/QuHJPXvPmJU+D66AglMznUxTkZ6tx3EOJ+inD43e99cDAKBggqhkjOPQQDAgNIADBFAiAXxauGC85yTv0CM2bSL7rs7d/gRiSqKHKdoq5109VtFAIhANd3bWjka5n+pyTGN0p+fRoRuOLm0MbvK8Gv0jXesJLv"
+        ],
+        "kty": "EC",
+        "use": "sig",
+        "crv": "P-256",
+        "x": "vzTnMScrMgVDdcRY_8ql_Is2tTxxgDSHCG0SMwEzG_Q",
+        "y": "LhyT17z5iVPg-ugIJTM51MU5GercdxDifopw-N3vfXA",
+        "alg": "ES256"
+      }
+    }
+  ],
+  "service": [
+    {
+      "id": "https://pinggg.mywire.org/wallet/identity/v2#AccessTokenService-1",
+      "type": "TokenService",
+      "serviceEndpoint": "https://pinggg.mywire.org/wallet/token/v2",
+      "name": "Airline Demo Token exchange service"
+    },
+    {
+      "id": "https://pinggg.mywire.org/wallet/identity/v2#ConfirmationService-1",
+      "type": "ConfirmationService",
+      "serviceEndpoint": "https://pinggg.mywire.org/wallet/confirmation/v2",
+      "name": "Airline Demo Confirmation post service"
+    },
+    {
+      "id": "https://pinggg.mywire.org/wallet/identity/v2#ValidationService-1",
+      "type": "ValidationService",
+      "serviceEndpoint": "https://pinggg.mywire.org/wallet/validation-stub/v2",
+      "name": "Stub for Validation Demo service"
+    }
+  ]
+}
