@@ -1,6 +1,7 @@
 ﻿package nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.identity
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.PublicKeyJwk
 
 /**
  3.8.2.2
@@ -27,17 +28,17 @@ class VerificationMethod
     /**
     */
     @JsonProperty("controller")
-    val serviceUri: String,
+    val controller: String,
 
     /**
      Mandatory only for asymmetric encryption/signing, otherwise optional
     */
-    val publicKeyJwk: String, //JsonWebKeyRfc7517
+    val publicKeyJwk: PublicKeyJwk,
 
     /**
      Optional Verification IDs Array which can be used for referencing other Keys.
      TODO this is a reference to <see cref="Id"/> ????
     */
-    @JsonProperty("verificationMethods")
-    val verificationMethodIds: Array<String>
+//    @JsonProperty("verificationMethods")
+//    val verificationMethodIds: Array<String>
 )

@@ -51,7 +51,7 @@ class ValidationAccessTokenPayload {
 
     /**
      * https://serviceprovider
-     * id (uri?) of identity document
+     * id (uri?) of identity document - whose?
      */
     //@NotBlank
     @JsonProperty("iss")

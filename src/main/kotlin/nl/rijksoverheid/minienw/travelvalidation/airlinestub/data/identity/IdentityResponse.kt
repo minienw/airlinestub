@@ -9,9 +9,9 @@ class IdentityResponse
 
     /**
         TODO name should be plural
-         */
-        @JsonProperty("verificationMethod")
-        val verificationMethods :  Array<VerificationMethod>,
+    */
+    @JsonProperty("verificationMethod")
+    val verificationMethod :  Array<VerificationMethod>,
 
     /** TODO name should be plural*/
         @JsonProperty("service")

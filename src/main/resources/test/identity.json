@@ -20,8 +20,8 @@
       "serviceEndpoint": "http://localhost:8081/token"
     },
     {
-      "id": "http://localhost:8081/identity/service#Callback",
-      "type": "Callback",
+      "id": "http://localhost:8081/identity/service#ResultTokenService",
+      "type": "ResultTokenService",
       "serviceEndpoint": "http://localhost:8081/callback"
     }
   ]

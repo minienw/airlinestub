@@ -28,7 +28,7 @@ class Service
     /**
     Actual Uri
     */
-    var serviceEndPoint : String,
+    var serviceEndpoint : String,
 
     /**
     "Human readable"
