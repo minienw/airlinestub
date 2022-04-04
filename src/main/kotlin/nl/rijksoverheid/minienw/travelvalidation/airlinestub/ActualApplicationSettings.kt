@@ -10,7 +10,11 @@ class ActualApplicationSettings(
     override val configFileFolderPath: String
         get() = file.configFileFolderPath
     override val validationServiceIdentityUri: String
-        get() = TODO("Not yet implemented")
+        get() = file.validationServiceIdentityUri
+    override val validationServiceInitializeUri: String
+        get() = file.validationServiceInitializeUri
+    override val validationServiceValidateUri: String
+        get() = file.validationServiceValidateUri
     override val rootServiceUrl: String
         get() = file.rootUri
     override val validationAccessTokenAlgorithm: String

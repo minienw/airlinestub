@@ -6,6 +6,8 @@ interface IApplicationSettings
 {
     val configFileFolderPath: String
     val validationServiceIdentityUri: String
+    val validationServiceInitializeUri: String
+    val validationServiceValidateUri: String
 
     val rootServiceUrl: String
 

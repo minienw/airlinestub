@@ -36,9 +36,9 @@ class HttpPostTokenV2Command(
             jsonTokenIdentifier = ValidationServicesSubjectIdGenerator().next(),
             whenExpires = Instant.now().epochSecond + 3600,
             whenIssued = 1645966339L,
-            serviceProvider = "http://localhost:8081/identity", //Identity of the airline (again)
+            serviceProvider = "${appSettings.rootServiceUrl}/identity", //Identity of the airline (again)
             subject = "0123456789ABCDEF0123456789ABCDEF",
-            subjectUri = "http://localhost:8080/validate/0123456789ABCDEF0123456789ABCDEF", //TODO from validation service identity
+            subjectUri = "${appSettings.validationServiceValidateUri}/0123456789ABCDEF0123456789ABCDEF", //TODO from validation service identity
             ValidationCondition = ValidationAccessTokenConditionPayload(
                 //DccHash = "sdaasdad",
                 language = "en",
@@ -82,7 +82,7 @@ class HttpPostTokenV2Command(
         )
         val bodyJson = Gson().toJson(body)
         val request = HttpRequest.newBuilder()
-            .uri(URI.create("http://localhost:8080/initialize/0123456789ABCDEF0123456789ABCDEF")) //TODO from validation service identity
+            .uri(URI.create("${appSettings.validationServiceInitializeUri}/0123456789ABCDEF0123456789ABCDEF")) //TODO from validation service identity
             .setHeader("authorization", "bearer $jws")
             .setHeader(Headers.Version, Headers.V2)
             .setHeader("accept", Headers.Json)
@@ -95,7 +95,7 @@ class HttpPostTokenV2Command(
         if (response.statusCode() != HttpStatus.OK.value())
             throw Exception()
 
-        val validationIdentityUrl = "http://localhost:8080/identity"   //TODO source?
+        val validationIdentityUrl = appSettings.validationServiceIdentityUri
         val validationIdentity = getIdentity(validationIdentityUrl)
         val validationEncryptionJwk = findEncryptionKey(validationIdentity)
         val validationEncryptionJwkBase64 = Base64.toBase64String(Gson().toJson(validationEncryptionJwk).toByteArray(Charsets.UTF_8))
