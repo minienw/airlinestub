@@ -12,11 +12,11 @@ class ValidationInitializeRequestBodyValidatorV2 {
     fun validate(body: ValidationInitializeRequestBody): List<String> {
         validateNonce(body.nonce)
 
-        if (!body.walletPublicKey.isNullOrEmpty())
-            result.add("Wallet signing is not supported.")
-
-        if (!body.walletPublicKeyAlgorithm.isNullOrEmpty())
-            result.add("Wallet signing is not supported.")
+//        if (!body.walletPublicKey.isNullOrEmpty())
+//            result.add("Wallet signing is not supported.")
+//
+//        if (!body.walletPublicKeyAlgorithm.isNullOrEmpty())
+//            result.add("Wallet signing is not supported.")
 
         return result;
     }

@@ -7,6 +7,7 @@ import nl.rijksoverheid.minienw.travelvalidation.airlinestub.*
 import nl.rijksoverheid.minienw.travelvalidation.airlinestub.api.*
 import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.*
 import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.identity.IdentityResponse
+import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.token.TokenRequestBody
 import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.token.ValidationInitializeRequestBody
 import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.token.ValidationType
 import org.bouncycastle.util.encoders.Base64
@@ -30,7 +31,7 @@ class HttpPostTokenV2Command(
     private val sessionRepository: ISessionRepository,
     private val bodyValidator: ValidationInitializeRequestBodyValidatorV2,
 ) {
-    fun execute(initiatingQrCodePayload: String): ResponseEntity<Any>
+    fun execute(requestBody: TokenRequestBody, initiatingQrCodePayload: String): ResponseEntity<Any>
     {
         val validationAccessTokenPayload = ValidationAccessTokenPayload(
             jsonTokenIdentifier = ValidationServicesSubjectIdGenerator().next(),
@@ -76,8 +77,8 @@ class HttpPostTokenV2Command(
         val nonceBase64 = Base64.toBase64String(nonce);
 
         val body = ValidationInitializeRequestBody(
-            walletPublicKey = "",
-            walletPublicKeyAlgorithm = "",
+            walletPublicKey = requestBody.pubKey,
+            walletPublicKeyAlgorithm = requestBody.alg,
             nonce = nonceBase64
         )
         val bodyJson = Gson().toJson(body)
@@ -101,7 +102,6 @@ class HttpPostTokenV2Command(
         val validationEncryptionJwkBase64 = Base64.toBase64String(Gson().toJson(validationEncryptionJwk).toByteArray(Charsets.UTF_8))
         val validationVerificationJwk = findVerificationKey(validationIdentity)
         val validationVerificationJwkBase64 = Base64.toBase64String(Gson().toJson(validationVerificationJwk).toByteArray(Charsets.UTF_8))
-
 
         return ResponseEntity.ok()
             .header("x-nonce", nonceBase64)

@@ -11,12 +11,14 @@ import com.google.gson.Gson
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.callback.CallbackRequestBody
+import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.token.TokenRequestBody
 import org.bouncycastle.util.encoders.Base64
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
 import java.io.File
 import java.util.*
 
@@ -86,9 +88,12 @@ class DecoratorController(
     }
 
     @PostMapping("/token")
-    fun token(@RequestBody initiatingToken: String) : ResponseEntity<Any>
+    fun token(
+        @RequestBody requestBody: TokenRequestBody,
+        @RequestHeader("authorization") initiatingToken: String
+    ) : ResponseEntity<Any>
     {
-        return postTokenV2Command.execute(initiatingToken)
+        return postTokenV2Command.execute(requestBody, initiatingToken)
     }
 
     @PostMapping("/callback")
