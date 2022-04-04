@@ -7,6 +7,8 @@ interface IApplicationSettings
     val configFileFolderPath: String
     val validationServiceIdentityUri: String
 
+    val rootServiceUrl: String
+
     val validationAccessTokenAlgorithm : String
     val validationAccessTokenPublicKey : String
     val validationAccessTokenPrivateKey : String

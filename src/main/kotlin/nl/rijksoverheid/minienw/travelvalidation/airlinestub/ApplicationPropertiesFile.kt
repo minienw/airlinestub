@@ -6,4 +6,5 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 class ApplicationPropertiesFile {
     lateinit var redisHost: String
     lateinit var configFileFolderPath: String
+    lateinit var rootUri:String
 }

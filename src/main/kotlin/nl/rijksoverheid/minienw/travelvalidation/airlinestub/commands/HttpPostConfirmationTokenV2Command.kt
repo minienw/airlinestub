@@ -22,4 +22,3 @@ class HttpPostConfirmationTokenV2Command(
         return ResponseEntity.ok().build()
     }
 }
-
