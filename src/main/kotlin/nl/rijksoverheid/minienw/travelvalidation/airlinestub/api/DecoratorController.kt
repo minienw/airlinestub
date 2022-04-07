@@ -37,23 +37,9 @@ class DecoratorController(
         var tokenJson = CreateExampleInitiatingToken()
         var urlToken = Base64.toBase64String(tokenJson.toByteArray(Charsets.UTF_8))
 
-        var html = "<html><a href=\"${appSettings.rootServiceUrl}/${urlToken}\">Link</a></html>"
+        var html = "<html><a href=\"${appSettings.walletProcessUrl}/${urlToken}\">Link</a></html>"
 
         return ResponseEntity.ok(html)
-        //return createInitiatingTokenV2Command.execute()
-    }
-
-    @GetMapping("/starthere")
-    fun getInitiatingQrCode() : ResponseEntity<Any>
-    {        val initiatingQrTokenPayload = InitiatingQrTokenPayload(
-        issuer = "http://kellair.com",
-        iat = 10000000,
-        sub= "0123456789ABCDEF0123456789ABCDEF",
-        exp= 20000000
-    )
-        var responseBody = CreateExampleInitiatingToken()
-        return ResponseEntity.ok(responseBody)
-        //return createInitiatingTokenV2Command.execute()
     }
 
     private fun CreateExampleInitiatingToken(): String
@@ -76,7 +62,7 @@ class DecoratorController(
             .compact()
 
         val initiatingQrPayload = InitiatingQrPayload(
-            serviceIdentity = "${appSettings.rootServiceUrl}/identity",
+            serviceIdentity = appSettings.validationServiceIdentityUri,
             subject = initiatingQrTokenPayload.sub,
             consent = "By clicking “Upload” and selecting a QR code you will be sending you DCC containing personal data to the server that will validate it for your travel. Make sure you expect to do so. If you are not checking in for a trip abroad, close your browser screen.;By selecting OK you will be sending the validation result containg personal data to the transport company. Only do so if you are actually checking in.",
             privacyUrl = "privacy policy url...",

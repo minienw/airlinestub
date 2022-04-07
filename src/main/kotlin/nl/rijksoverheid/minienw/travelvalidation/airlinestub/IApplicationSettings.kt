@@ -4,6 +4,7 @@ import java.io.File
 
 interface IApplicationSettings
 {
+    val walletProcessUrl: String
     val configFileFolderPath: String
     val validationServiceIdentityUri: String
     val validationServiceInitializeUri: String

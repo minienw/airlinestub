@@ -7,6 +7,8 @@ class ActualApplicationSettings(
     private val file: ApplicationPropertiesFile
 ): IApplicationSettings
 {
+    override val walletProcessUrl: String
+        get() = file.walletProcessUrl
     override val configFileFolderPath: String
         get() = file.configFileFolderPath
     override val validationServiceIdentityUri: String
@@ -16,7 +18,7 @@ class ActualApplicationSettings(
     override val validationServiceValidateUri: String
         get() = file.validationServiceValidateUri
     override val rootServiceUrl: String
-        get() = file.rootUri
+        get() = file.rootServiceUrl
     override val validationAccessTokenAlgorithm: String
         get() = TODO("Not yet implemented")
     override val validationAccessTokenPublicKey: String

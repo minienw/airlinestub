@@ -11,6 +11,7 @@ import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.token.TokenReq
 import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.token.ValidationInitializeRequestBody
 import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.token.ValidationType
 import org.bouncycastle.util.encoders.Base64
+import org.slf4j.LoggerFactory
 import org.springframework.boot.web.client.RestTemplateBuilder
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -33,6 +34,8 @@ class HttpPostTokenV2Command(
 ) {
     fun execute(requestBody: TokenRequestBody, initiatingQrCodePayload: String): ResponseEntity<Any>
     {
+        var logger = LoggerFactory.getLogger(HttpPostTokenV2Command::class.java)
+
         val validationAccessTokenPayload = ValidationAccessTokenPayload(
             jsonTokenIdentifier = ValidationServicesSubjectIdGenerator().next(),
             whenExpires = Instant.now().epochSecond + 3600,
@@ -91,10 +94,21 @@ class HttpPostTokenV2Command(
             .POST(HttpRequest.BodyPublishers.ofString(bodyJson))
             .build()
 
-        val response = HttpClient.newBuilder().build().send(request, HttpResponse.BodyHandlers.ofString())
-        println(response)
+        var response: HttpResponse<String>
+        try{
+            response = HttpClient.newBuilder().build().send(request, HttpResponse.BodyHandlers.ofString())
+        }
+        catch(ex:Exception)
+        {
+            logger.error("POST to ${appSettings.validationServiceInitializeUri} failed with $ex")
+            throw ex
+        }
+
         if (response.statusCode() != HttpStatus.OK.value())
-            throw Exception()
+        {
+            logger.error("POST to ${appSettings.validationServiceInitializeUri} failed with $response")
+            throw Error("POST to ${appSettings.validationServiceInitializeUri} failed with $response")
+        }
 
         val validationIdentityUrl = appSettings.validationServiceIdentityUri
         val validationIdentity = getIdentity(validationIdentityUrl)
