@@ -21,7 +21,7 @@ class ValidationAccessTokenPayload {
         jsonTokenIdentifier: String,
         serviceProvider: String,
         subject: String,
-        subjectUri: String,
+        validationUrl: String,
         whenExpires: Long,
         ValidationType: ValidationType,
         ValidationVersion: String,
@@ -32,7 +32,7 @@ class ValidationAccessTokenPayload {
         this.id = jsonTokenIdentifier
         this.issuingServiceProvider = serviceProvider
         this.subject = subject
-        this.validationUrl = subjectUri
+        this.validationUrl = validationUrl
         this.whenIssued = whenIssued
         this.whenExpires = whenExpires
         this.validationType = ValidationType

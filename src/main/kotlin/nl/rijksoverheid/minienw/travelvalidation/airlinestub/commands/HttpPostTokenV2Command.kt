@@ -27,22 +27,30 @@ import java.util.*
 
 @Service
 class HttpPostTokenV2Command(
-    private val dateTimeProvider: IDateTimeProvider,
     private val appSettings: IApplicationSettings,
-    private val sessionRepository: ISessionRepository,
-    private val bodyValidator: ValidationInitializeRequestBodyValidatorV2,
 ) {
     fun execute(requestBody: TokenRequestBody, initiatingQrCodePayload: String): ResponseEntity<Any>
     {
-        var logger = LoggerFactory.getLogger(HttpPostTokenV2Command::class.java)
+        val logger = LoggerFactory.getLogger(HttpPostTokenV2Command::class.java)
+
+        val localIdentityDoc = readIdentityFile()
+
+        //  val initiatingQrCodeObject = Gson().fromJson(initiatingQrCodePayload, InitiatingQrPayload::class.java)
+        //  if (!initiatingQrCodeObject.serviceIdentity.equals(localIdentityDoc.id)) {
+        //      logger.error("Local id ${localIdentityDoc.id} does not match initiating payload ${initiatingQrCodeObject.serviceIdentity}.");
+        //      throw Exception()
+        //  }
+
+        val validationIdentityUrl = appSettings.validationServiceIdentityUri
+        val validationIdentity = getIdentity(validationIdentityUrl)
 
         val validationAccessTokenPayload = ValidationAccessTokenPayload(
             jsonTokenIdentifier = ValidationServicesSubjectIdGenerator().next(),
             whenExpires = Instant.now().epochSecond + 3600,
             whenIssued = 1645966339L,
-            serviceProvider = "${appSettings.rootServiceUrl}/identity", //Identity of the airline (again)
-            subject = "0123456789ABCDEF0123456789ABCDEF",
-            subjectUri = "${appSettings.validationServiceValidateUri}/0123456789ABCDEF0123456789ABCDEF", //TODO from validation service identity
+            serviceProvider = localIdentityDoc.id,
+            subject = "0123456789ABCDEF0123456789ABCDEF", //TODO set from the initiatingQrCodePayload subject?
+            validationUrl = "${findValidateUri(validationIdentity)}/0123456789ABCDEF0123456789ABCDEF", //TODO set from the initiatingQrCodePayload subject?
             ValidationCondition = ValidationAccessTokenConditionPayload(
                 //DccHash = "sdaasdad",
                 language = "en",
@@ -66,8 +74,8 @@ class HttpPostTokenV2Command(
         )
 
         val payloadJson = Gson().toJson(validationAccessTokenPayload)
-        var privateKeyPem = File(appSettings.configFileFolderPath,"accesstokensign-privatekey-1.pem").readText()
-        var privateKey = CryptoKeyConverter.decodeAsn1DerPkcs8PemPrivateKey(privateKeyPem)
+        val privateKeyPem = File(appSettings.configFileFolderPath,"accesstokensign-privatekey-1.pem").readText()
+        val privateKey = CryptoKeyConverter.decodeAsn1DerPkcs8PemPrivateKey(privateKeyPem)
 
         val jws : String = Jwts.builder()
             .setPayload(payloadJson)
@@ -77,16 +85,19 @@ class HttpPostTokenV2Command(
 
         val nonce = ByteArray(16)
         Random().nextBytes(nonce)
-        val nonceBase64 = Base64.toBase64String(nonce);
+        val nonceBase64 = Base64.toBase64String(nonce)
 
         val body = ValidationInitializeRequestBody(
             walletPublicKey = requestBody.pubKey,
             walletPublicKeyAlgorithm = requestBody.alg,
             nonce = nonceBase64
         )
+
+        val initUri = findInitializeUri(validationIdentity)
+
         val bodyJson = Gson().toJson(body)
         val request = HttpRequest.newBuilder()
-            .uri(URI.create("${appSettings.validationServiceInitializeUri}/0123456789ABCDEF0123456789ABCDEF")) //TODO from validation service identity
+            .uri(URI.create("${initUri}/0123456789ABCDEF0123456789ABCDEF")) //TODO set from the initiatingQrCodePayload subject?
             .setHeader("authorization", "bearer $jws")
             .setHeader(Headers.Version, Headers.V2)
             .setHeader("accept", Headers.Json)
@@ -94,24 +105,22 @@ class HttpPostTokenV2Command(
             .POST(HttpRequest.BodyPublishers.ofString(bodyJson))
             .build()
 
-        var response: HttpResponse<String>
+        val response: HttpResponse<String>
         try{
             response = HttpClient.newBuilder().build().send(request, HttpResponse.BodyHandlers.ofString())
         }
         catch(ex:Exception)
         {
-            logger.error("POST to ${appSettings.validationServiceInitializeUri} failed with $ex")
+            logger.error("POST to ${initUri} failed with $ex")
             throw ex
         }
 
         if (response.statusCode() != HttpStatus.OK.value())
         {
-            logger.error("POST to ${appSettings.validationServiceInitializeUri} failed with $response")
-            throw Error("POST to ${appSettings.validationServiceInitializeUri} failed with $response")
+            logger.error("POST to ${initUri} failed with $response")
+            throw Error("POST to ${initUri} failed with $response")
         }
 
-        val validationIdentityUrl = appSettings.validationServiceIdentityUri
-        val validationIdentity = getIdentity(validationIdentityUrl)
         val validationEncryptionJwk = findEncryptionKey(validationIdentity)
         val validationEncryptionJwkBase64 = Base64.toBase64String(Gson().toJson(validationEncryptionJwk).toByteArray(Charsets.UTF_8))
         val validationVerificationJwk = findVerificationKey(validationIdentity)
@@ -122,6 +131,12 @@ class HttpPostTokenV2Command(
             .header("x-enc", validationEncryptionJwkBase64)
             .header("x-sig", validationVerificationJwkBase64)
             .body(jws)
+    }
+
+    private fun readIdentityFile(): IdentityResponse {
+        val content = File(appSettings.configFileFolderPath, "identity.json").readText()
+        val doc = Gson().fromJson(content, IdentityResponse::class.java)
+        return doc
     }
 
     fun getIdentity(url: String): IdentityResponse
@@ -143,11 +158,19 @@ class HttpPostTokenV2Command(
     }
 
     private fun findEncryptionKey(validationIdentity: IdentityResponse): PublicKeyJwk {
-        return validationIdentity.verificationMethod.find{it.publicKeyJwk?.use.equals("enc")}?.publicKeyJwk ?: throw Exception()
+        return validationIdentity.verificationMethod.find{it.publicKeyJwk.use.equals("enc")}?.publicKeyJwk ?: throw Exception()
     }
 
     private fun findVerificationKey(validationIdentity: IdentityResponse): PublicKeyJwk {
-        return validationIdentity.verificationMethod.find{it.publicKeyJwk?.use.equals("sig")}?.publicKeyJwk ?: throw Exception()
+        return validationIdentity.verificationMethod.find{it.publicKeyJwk.use.equals("sig")}?.publicKeyJwk ?: throw Exception()
+    }
+
+    private fun findInitializeUri(validationIdentity: IdentityResponse): String {
+        return validationIdentity.services.find{it.type.equals("InitializeService")}?.serviceEndpoint ?: throw Exception()
+    }
+
+    private fun findValidateUri(validationIdentity: IdentityResponse): String {
+        return validationIdentity.services.find{it.type.equals("ValidationService")}?.serviceEndpoint ?: throw Exception()
     }
 }
 
