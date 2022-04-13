@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.RequestHeader
 import java.io.File
 import java.util.*
 
-
 @Controller
 class DecoratorController(
     private val appSettings: IApplicationSettings,
@@ -36,7 +35,7 @@ class DecoratorController(
     {
         val tokenJson = CreateExampleInitiatingToken()
         val urlToken = Base64.toBase64String(tokenJson.toByteArray(Charsets.UTF_8))
-        val html = "<html><a href=\"${appSettings.walletProcessUrl}/${urlToken}\">Link</a></html>"
+        val html = "<html><a href=\"${appSettings.walletProcessUrl}/${urlToken}\">Go to wallet</a><p>/process/${urlToken}</p><p>${tokenJson}</p></html>"
 
         return ResponseEntity.ok(html)
     }
