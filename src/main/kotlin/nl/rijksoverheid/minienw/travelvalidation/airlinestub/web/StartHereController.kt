@@ -70,7 +70,7 @@ class StartHereController(
         val tokenJson = Gson().toJson(initiatingQrPayload)
         repo.save(SessionInfo(initiatingQrPayload.subject, tripArgs, null))
         val startingUrl = "${appSettings.walletProcessUrl}/${Base64.toBase64String(tokenJson.toByteArray(Charsets.UTF_8))}"
-        val statusUrl = "${appSettings.hostUri}/status/${initiatingQrPayload.subject}"
+        val statusUrl = "/status/${initiatingQrPayload.subject}"
         model["tripArgsViewModel"] = TripArgsViewModel("", tokenJson, startingUrl, statusUrl)
         return "/start/index"
     }

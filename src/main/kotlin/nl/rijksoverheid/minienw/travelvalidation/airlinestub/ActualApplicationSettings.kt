@@ -15,8 +15,4 @@ class ActualApplicationSettings(
         get() = file.validationServiceIdentityUri
     override val redisHost: String
         get() = file.redisHost
-    override val hostUri: String
-        get() = file.hostUri
-
-
 }

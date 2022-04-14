@@ -6,5 +6,4 @@ interface IApplicationSettings
     val configFileFolderPath: String
     val validationServiceIdentityUri: String
     val redisHost: String
-    val hostUri: String
 }
