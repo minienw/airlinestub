@@ -1,24 +1,22 @@
 package nl.rijksoverheid.minienw.travelvalidation.airlinestub.commands
 
-import nl.rijksoverheid.minienw.travelvalidation.airlinestub.IApplicationSettings
-import nl.rijksoverheid.minienw.travelvalidation.airlinestub.IDateTimeProvider
-import nl.rijksoverheid.minienw.travelvalidation.airlinestub.ISessionRepository
-import nl.rijksoverheid.minienw.travelvalidation.airlinestub.ValidationServicesSubjectIdGenerator
+import nl.rijksoverheid.minienw.travelvalidation.airlinestub.*
+import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.callback.ConfirmationTokenPayload
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 
 @Component
 class HttpPostConfirmationTokenV2Command(
     private val repo: ISessionRepository,
-    private val dtp : IDateTimeProvider,
-    private val appSettings : IApplicationSettings,
-    private val subjectIdGenerator: ValidationServicesSubjectIdGenerator
 )
 {
     fun execute(confirmationToken: String): ResponseEntity<Any>
     {
-        //TODO Validate token
-        //TODO Tie up a subjectId with an existing session
+        val payload = JwtPayloadParser().getPayload<ConfirmationTokenPayload>(confirmationToken)
+        val session = repo.find(payload.subject) ?: return ResponseEntity("Subject not found", HttpStatus.NOT_FOUND)
+        session.validationResult = payload.result
+        repo.save(session)
         return ResponseEntity.ok().build()
     }
 }

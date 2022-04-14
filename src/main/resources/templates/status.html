@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Trip/Traveller</title>
+</head>
+<body>
+
+<div class="row">
+    <div class="col-md-6 col-md-offset-3">
+        <h1>Status of validation</h1>
+        <p>Keep hitting F5 until the Status is either Gone or Verified</p>
+        <table th:object="${statusViewModel}">
+            <tr><td><span th:text="${statusViewModel.getSubject()}"> Subject </span></td></tr>
+            <tr><td><span th:text="${statusViewModel.getStatus()}"> Status </span></td></tr>
+        </table>
+    </div>
+</div>
+</body>
+</html>

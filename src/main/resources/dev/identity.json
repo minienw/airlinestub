@@ -1,5 +1,5 @@
 {
-  "id": "http://localhost:8081/identity",
+  "id": "http://localhost:9001/identity",
   "verificationMethod": [
     {
       "id" : "http://localhost:8081/verificationmethod#AccessTokenSign-1",
@@ -17,12 +17,12 @@
     {
       "id": "http://localhost:8081/identity/service#AccessTokenService",
       "type": "AccessTokenService",
-      "serviceEndpoint": "http://localhost:8081/token"
+      "serviceEndpoint": "http://localhost:9001/token"
     },
     {
       "id": "http://localhost:8081/identity/service#ResultTokenService",
       "type": "ResultTokenService",
-      "serviceEndpoint": "http://localhost:8081/callback"
+      "serviceEndpoint": "http://localhost:9001/callback"
     }
   ]
 }

@@ -4,9 +4,12 @@ import com.google.gson.Gson
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import nl.rijksoverheid.minienw.travelvalidation.airlinestub.*
-import nl.rijksoverheid.minienw.travelvalidation.airlinestub.api.*
-import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.*
+import nl.rijksoverheid.minienw.travelvalidation.airlinestub.api.Headers
+import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.PublicKeyJwk
+import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.ValidationAccessTokenConditionPayload
+import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.ValidationAccessTokenPayload
 import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.identity.IdentityResponse
+import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.token.InitiatingQrTokenPayload
 import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.token.TokenRequestBody
 import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.token.ValidationInitializeRequestBody
 import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.token.ValidationType
@@ -25,51 +28,51 @@ import java.net.http.HttpResponse
 import java.time.Instant
 import java.util.*
 
+
 @Service
 class HttpPostTokenV2Command(
     private val appSettings: IApplicationSettings,
+    private val repo : ISessionRepository
 ) {
-    fun execute(requestBody: TokenRequestBody, initiatingQrCodePayload: String): ResponseEntity<Any>
+    fun execute(requestBody: TokenRequestBody, initiatingToken: String): ResponseEntity<Any>
     {
         val logger = LoggerFactory.getLogger(HttpPostTokenV2Command::class.java)
 
-        val localIdentityDoc = readIdentityFile()
+        //Parse JWT
+        val initiatingTokenPayloadObject = JwtPayloadParser().getPayload<InitiatingQrTokenPayload>(initiatingToken)
+        val session = repo.find(initiatingTokenPayloadObject.sub) ?: return ResponseEntity("Subject does not exist.", HttpStatus.NOT_FOUND)
 
-        //  val initiatingQrCodeObject = Gson().fromJson(initiatingQrCodePayload, InitiatingQrPayload::class.java)
-        //  if (!initiatingQrCodeObject.serviceIdentity.equals(localIdentityDoc.id)) {
-        //      logger.error("Local id ${localIdentityDoc.id} does not match initiating payload ${initiatingQrCodeObject.serviceIdentity}.");
-        //      throw Exception()
-        //  }
+        val localIdentityDocId = readIdentityFile().id
 
         val validationIdentityUrl = appSettings.validationServiceIdentityUri
         val validationIdentity = getIdentity(validationIdentityUrl)
-
+        val snapshot = Instant.now()
         val validationAccessTokenPayload = ValidationAccessTokenPayload(
             jsonTokenIdentifier = ValidationServicesSubjectIdGenerator().next(),
-            whenExpires = Instant.now().epochSecond + 3600,
-            whenIssued = 1645966339L,
-            serviceProvider = localIdentityDoc.id,
-            subject = "0123456789ABCDEF0123456789ABCDEF", //TODO set from the initiatingQrCodePayload subject?
-            validationUrl = "${findValidateUri(validationIdentity)}/0123456789ABCDEF0123456789ABCDEF", //TODO set from the initiatingQrCodePayload subject?
+            whenExpires = snapshot.epochSecond + 3600,
+            whenIssued = snapshot.epochSecond,
+            serviceProvider = localIdentityDocId,
+            subject = initiatingTokenPayloadObject.sub,
+            validationUrl = "${findValidateUri(validationIdentity)}/${initiatingTokenPayloadObject.sub}", //TODO set from the initiatingQrCodePayload subject?
             ValidationCondition = ValidationAccessTokenConditionPayload(
                 //DccHash = "sdaasdad",
                 language = "en",
                 familyNameTransliterated = "who",
                 givenNameTransliterated = "knows",
                 dateOfBirth = "1979-04-14",
-                countryOfArrival = "NL",
-                countryOfDeparture = "DE",
-                portOfArrival = "AMS",
-                portOfDeparture = "FRA",
-                regionOfArrival = "",
-                regionOfDeparture = "",
-                dccTypes = arrayOf("v"),
+                countryOfArrival = session.tripArgs.toCountry,
+                countryOfDeparture = session.tripArgs.fromCountry,
+                portOfArrival = "AMS", //TODO
+                portOfDeparture = "FRA", //TODO
+                regionOfArrival = "", //TODO
+                regionOfDeparture = "", //TODO
+                dccTypes = arrayOf("v","t","r"), //TODO...
                 categories = arrayOf("standard"),
-                validationClock = "2021-01-29T12:00:00+01:00",
-                whenValidStart = "2021-01-29T12:00:00+01:00",
-                whenValidEnd = "2021-01-29T12:00:00+01:00",
+                validationClock = "2021-01-29T12:00:00+01:00", //TODO
+                whenValidStart = "2021-01-29T12:00:00+01:00", //TODO
+                whenValidEnd = "2021-01-29T12:00:00+01:00", //TODO
             ),
-            ValidationVersion =  "1.0", //TODO parameter sent to verifier?
+            ValidationVersion =  "2.0", //TODO parameter sent to verifier?
             ValidationType = ValidationType.Full
         )
 
@@ -97,7 +100,7 @@ class HttpPostTokenV2Command(
 
         val bodyJson = Gson().toJson(body)
         val request = HttpRequest.newBuilder()
-            .uri(URI.create("${initUri}/0123456789ABCDEF0123456789ABCDEF")) //TODO set from the initiatingQrCodePayload subject?
+            .uri(URI.create("${initUri}/${initiatingTokenPayloadObject.sub}"))
             .setHeader("authorization", "bearer $jws")
             .setHeader(Headers.Version, Headers.V2)
             .setHeader("accept", Headers.Json)

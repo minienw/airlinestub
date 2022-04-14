@@ -1,6 +1,6 @@
 package nl.rijksoverheid.minienw.travelvalidation.airlinestub
 
-import nl.rijksoverheid.minienw.travelvalidation.service.services.SessionInfo
+import nl.rijksoverheid.minienw.travelvalidation.airlinestub.services.SessionInfo
 
 interface ISessionRepository
 {

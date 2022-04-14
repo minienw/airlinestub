@@ -14,5 +14,9 @@ class ActualApplicationSettings(
     override val validationServiceIdentityUri: String
         get() = file.validationServiceIdentityUri
     override val redisHost: String
-        get() = TODO("Not yet implemented")
+        get() = file.redisHost
+    override val hostUri: String
+        get() = file.hostUri
+
+
 }

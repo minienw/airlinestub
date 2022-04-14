@@ -27,6 +27,9 @@ dependencies {
 	//Platform
 	implementation("org.springframework.boot:spring-boot-starter-web:2.6.4")
 	implementation("org.springframework.boot:spring-boot-starter-validation:2.6.4")
+	implementation("org.springframework.boot:spring-boot-starter-thymeleaf:2.6.4")
+	implementation("org.springframework.boot:spring-boot-devtools")
+
 	testImplementation("org.springframework.boot:spring-boot-starter-test:2.6.4")
 	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor:2.6.4")
 
