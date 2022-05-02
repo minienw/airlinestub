@@ -47,14 +47,14 @@ class StartHereController(
     fun send(model: Model): String? {
         model.addAttribute("tripArgs", TripArgs("DE", "NL"))
         model.addAttribute("tripArgsViewModel", TripArgsViewModel("","","",""))
-        return "/start/index"
+        return "start/index"
     }
 
     @GetMapping("/status/{subject}")
     fun getStatus(@PathVariable("subject") subject: String, model: Model): String? {
         val session = repo.find(subject)
         model.addAttribute("statusViewModel", StatusViewModel(subject, getResultText(session)))
-        return "/status"
+        return "status"
     }
 
     fun getResultText(sessionInfo: SessionInfo?) :String
@@ -72,7 +72,7 @@ class StartHereController(
         val startingUrl = "${appSettings.walletProcessUrl}/${Base64.toBase64String(tokenJson.toByteArray(Charsets.UTF_8))}"
         val statusUrl = "/status/${initiatingQrPayload.subject}"
         model["tripArgsViewModel"] = TripArgsViewModel("", tokenJson, startingUrl, statusUrl)
-        return "/start/index"
+        return "start/index"
     }
 
     private fun readIdentityFile(): IdentityResponse {
