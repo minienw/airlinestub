@@ -84,6 +84,16 @@ spec:
   selector:
     app: airlinestub
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: airlinestub
+spec:
+  ports:
+    - port: 7001
+  selector:
+    app: airlinestub
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -186,7 +196,9 @@ metadata:
 spec:
   type: LoadBalancer
   ports:
-    - port: 7001
+    - port: 80
       name: http
+    - port: 443
+      name: tls
   selector:
     app: ssl
