@@ -62,7 +62,7 @@ spec:
         "beta.kubernetes.io/os": linux
       containers:
         - name: airlinestub
-          image: stevekellaway/airlinestub:aks_latest
+          image: stevekellaway/airline_stub:aks_latest
           resources:
             requests:
               cpu: 0.1
