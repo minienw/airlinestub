@@ -1,0 +1,192 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: managed-premium-retain
+provisioner: kubernetes.io/azure-disk
+reclaimPolicy: Retain
+parameters:
+  storageaccounttype: Premium_LRS
+  kind: Managed
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: verifier-storage
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: managed-premium-retain
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ssl-data
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: managed-premium-retain
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ssl-config
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: managed-premium-retain
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: airlinestub
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: airlinestub
+  template:
+    metadata:
+      labels:
+        app: airlinestub
+    spec:
+      nodeSelector:
+        "beta.kubernetes.io/os": linux
+      containers:
+        - name: airlinestub
+          image: stevekellaway/airlinestub:aks_latest
+          resources:
+            requests:
+              cpu: 0.1
+              memory: 500Mi
+            limits:
+              cpu: 0.5
+              memory: 1Gi
+          ports:
+            - containerPort: 7001
+              name: airlinestub
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: airlinestub
+spec:
+  ports:
+    - port: 7001
+  selector:
+    app: airlinestub
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      nodeSelector:
+        "beta.kubernetes.io/os": linux
+      containers:
+        - name: redis
+          image: redis:6.2.6-alpine
+          command:
+            - redis-server
+          resources:
+            requests:
+              cpu: 0.3
+              memory: 1Gi
+            limits:
+              cpu: 1
+              memory: 2Gi
+          ports:
+            - containerPort: 6379
+              name: redis
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+spec:
+  ports:
+    - port: 6379
+  selector:
+    app: redis
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ssl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ssl
+  template:
+    metadata:
+      labels:
+        app: ssl
+    spec:
+      nodeSelector:
+        "beta.kubernetes.io/os": linux
+      containers:
+        - name: ssl
+          image: caddy:2
+          command:
+            - caddy
+            - reverse-proxy
+          args:
+            - --from
+            - {{AZ_NAME}}.{{AZ_LOCATION}}.cloudapp.azure.com
+            - --to
+            - airlinestub:7001
+          resources:
+            requests:
+              cpu: 0.1
+              memory: 500Mi
+            limits:
+              cpu: 0.5
+              memory: 1Gi
+          ports:
+            - containerPort: 7001
+              name: http
+          volumeMounts:
+            - mountPath: "/data"
+              name: data
+            - mountPath: "/config"
+              name: config
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: ssl-data
+        - name: config
+          persistentVolumeClaim:
+            claimName: ssl-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    # Let azure create a DNS record for the loadbalancer on {{AZ_NAME}}.{{AZ_LOCATION}}.cloudapp.azure.com
+    service.beta.kubernetes.io/azure-dns-label-name: {{AZ_NAME}}
+  name: ssl
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 7001
+      name: http
+  selector:
+    app: ssl
