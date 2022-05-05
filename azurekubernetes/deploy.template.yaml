@@ -162,7 +162,7 @@ spec:
               memory: 1Gi
           ports:
             - containerPort: 7001
-              name: http
+              name: tls
           volumeMounts:
             - mountPath: "/data"
               name: data
@@ -186,7 +186,7 @@ metadata:
 spec:
   type: LoadBalancer
   ports:
-    - port: 7001
-      name: http
+    - port: 443
+      name: tls
   selector:
     app: ssl
