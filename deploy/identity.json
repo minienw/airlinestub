@@ -1,5 +1,5 @@
 {
-  "id": "https://tvairline.westeurope.cloudapp.azure.com:7001/identity",
+  "id": "https://tvairline.ARSE.cloudapp.azure.com:7001/identity",
   "verificationMethod": [
     {
       "id" : "http://83.84.212.40:7001/verificationmethod#AccessTokenSign-1",

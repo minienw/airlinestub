@@ -22,7 +22,8 @@
     {
       "id": "https://tvairline.westeurope.cloudapp.azure.com/identity/service#ResultTokenService",
       "type": "ResultTokenService",
-      "serviceEndpoint": "https://tvairline.westeurope.cloudapp.azure.com/callback"
+      "serviceEndpoint": "https://tvairline.westeurope.cloudapp.azure.com/callback",
+      "name": "JFDI, please"
     }
   ]
 }
