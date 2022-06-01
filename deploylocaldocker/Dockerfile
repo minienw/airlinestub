@@ -1,4 +1,4 @@
-FROM stevekellaway/airline_stub:latest_noconfig
+FROM ghcr.io/minienw/airline_stub:latest_noconfig
 WORKDIR /service-bin
 COPY application.properties .
 COPY identity.json .

@@ -4,15 +4,12 @@ import com.google.gson.Gson
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import nl.rijksoverheid.minienw.travelvalidation.airlinestub.*
-import nl.rijksoverheid.minienw.travelvalidation.airlinestub.api.Headers
-import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.PublicKeyJwk
-import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.ValidationAccessTokenConditionPayload
-import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.ValidationAccessTokenPayload
-import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.identity.IdentityResponse
-import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.token.InitiatingQrTokenPayload
-import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.token.TokenRequestBody
-import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.token.ValidationInitializeRequestBody
-import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.token.ValidationType
+import nl.rijksoverheid.minienw.travelvalidation.api.Headers
+import nl.rijksoverheid.minienw.travelvalidation.api.data.*
+import nl.rijksoverheid.minienw.travelvalidation.api.data.identity.*
+import nl.rijksoverheid.minienw.travelvalidation.api.data.initialize.*
+import nl.rijksoverheid.minienw.travelvalidation.api.data.token.*
+import nl.rijksoverheid.minienw.travelvalidation.validationservice.services.CryptoKeyConverter
 import org.bouncycastle.util.encoders.Base64
 import org.slf4j.LoggerFactory
 import org.springframework.boot.web.client.RestTemplateBuilder
@@ -40,7 +37,7 @@ class HttpPostTokenV2Command(
 
         //Parse JWT
         val initiatingTokenPayloadObject = JwtPayloadParser().getPayload<InitiatingQrTokenPayload>(initiatingToken)
-        val session = repo.find(initiatingTokenPayloadObject.sub) ?: return ResponseEntity("Subject does not exist.", HttpStatus.NOT_FOUND)
+        val session = repo.find(initiatingTokenPayloadObject.subject) ?: return ResponseEntity("Subject does not exist.", HttpStatus.NOT_FOUND)
 
         val localIdentityDocId = readIdentityFile().id
 
@@ -52,25 +49,25 @@ class HttpPostTokenV2Command(
             whenExpires = snapshot.epochSecond + 3600,
             whenIssued = snapshot.epochSecond,
             serviceProvider = localIdentityDocId,
-            subject = initiatingTokenPayloadObject.sub,
-            validationUrl = "${findValidateUri(validationIdentity)}/${initiatingTokenPayloadObject.sub}", //TODO set from the initiatingQrCodePayload subject?
-            ValidationCondition = ValidationAccessTokenConditionPayload(
+            subject = initiatingTokenPayloadObject.subject,
+            subjectUri = "${findValidateUri(validationIdentity)}/${initiatingTokenPayloadObject.subject}", //TODO set from the initiatingQrCodePayload subject?
+            ValidationCondition = ValidationAccessTokenPayloadCondition(
                 //DccHash = "sdaasdad",
-                language = "en",
-                familyNameTransliterated = "who",
-                givenNameTransliterated = "knows",
-                dateOfBirth = "1979-04-14",
-                countryOfArrival = session.tripArgs.toCountry,
-                countryOfDeparture = session.tripArgs.fromCountry,
-                portOfArrival = "AMS", //TODO
-                portOfDeparture = "FRA", //TODO
-                regionOfArrival = "", //TODO
-                regionOfDeparture = "", //TODO
-                dccTypes = arrayOf("v","t","r"), //TODO...
-                categories = arrayOf("standard"),
+                lang = "en",
+                fnt = "who",
+                gnt = "knows",
+                dob = "1979-04-14",
+                coa = session.tripArgs.toCountry,
+                cod = session.tripArgs.fromCountry,
+                poa = "AMS", //TODO
+                pod = "FRA", //TODO
+                roa = "", //TODO
+                rod = "", //TODO
+                type = arrayOf("v","t","r"), //TODO...
+                category = arrayOf("standard"),
                 validationClock = "2021-01-29T12:00:00+01:00", //TODO
-                whenValidStart = "2021-01-29T12:00:00+01:00", //TODO
-                whenValidEnd = "2021-01-29T12:00:00+01:00", //TODO
+                validfrom = "2021-01-29T12:00:00+01:00", //TODO
+                validTo = "2021-01-29T12:00:00+01:00", //TODO
             ),
             ValidationVersion =  "2.0", //TODO parameter sent to verifier?
             ValidationType = ValidationType.Full
@@ -100,8 +97,8 @@ class HttpPostTokenV2Command(
 
         val bodyJson = Gson().toJson(body)
         val request = HttpRequest.newBuilder()
-            .uri(URI.create("${initUri}/${initiatingTokenPayloadObject.sub}"))
-            .setHeader("authorization", "bearer $jws")
+            .uri(URI.create("${initUri}/${initiatingTokenPayloadObject.subject}"))
+            .setHeader(Headers.Authorization, "bearer $jws")
             .setHeader(Headers.Version, Headers.V2)
             .setHeader("accept", Headers.Json)
             .setHeader("content-type", Headers.Json)
@@ -161,19 +158,19 @@ class HttpPostTokenV2Command(
     }
 
     private fun findEncryptionKey(validationIdentity: IdentityResponse): PublicKeyJwk {
-        return validationIdentity.verificationMethod.find{it.publicKeyJwk.use.equals("enc")}?.publicKeyJwk ?: throw Exception()
+        return validationIdentity.verificationMethod.find{it.publicKeyJwk?.use.equals("enc")}?.publicKeyJwk ?: throw Exception()
     }
 
     private fun findVerificationKey(validationIdentity: IdentityResponse): PublicKeyJwk {
-        return validationIdentity.verificationMethod.find{it.publicKeyJwk.use.equals("sig")}?.publicKeyJwk ?: throw Exception()
+        return validationIdentity.verificationMethod.find{it.publicKeyJwk?.use.equals("sig")}?.publicKeyJwk ?: throw Exception()
     }
 
     private fun findInitializeUri(validationIdentity: IdentityResponse): String {
-        return validationIdentity.services.find{it.type.equals("InitializeService")}?.serviceEndpoint ?: throw Exception()
+        return validationIdentity.service.find{it.type.equals("InitializeService")}?.serviceEndpoint ?: throw Exception()
     }
 
     private fun findValidateUri(validationIdentity: IdentityResponse): String {
-        return validationIdentity.services.find{it.type.equals("ValidationService")}?.serviceEndpoint ?: throw Exception()
+        return validationIdentity.service.find{it.type.equals("ValidationService")}?.serviceEndpoint ?: throw Exception()
     }
 }
 

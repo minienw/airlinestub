@@ -4,6 +4,7 @@ import com.google.gson.Gson
 import io.jsonwebtoken.Jwts
 
 class JwtPayloadParser {
+    //Splits the payload from the signature and parses. No sig check performed.
     inline fun <reified T: Any> getPayload(jwt: String): T {
         val splitToken = jwt.split(".")
         val unsignedToken = splitToken[0] + "." + splitToken[1] + "."

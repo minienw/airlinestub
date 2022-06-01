@@ -1,7 +1,7 @@
 package nl.rijksoverheid.minienw.travelvalidation.airlinestub.api
 
-import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.callback.ConfirmationTokenPayload
-import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.token.InitiatingQrPayload
+import nl.rijksoverheid.minienw.travelvalidation.api.data.callback.ConfirmationTokenPayload
+import nl.rijksoverheid.minienw.travelvalidation.api.data.token.InitiatingQrPayload
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component

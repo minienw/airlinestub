@@ -33,6 +33,9 @@ dependencies {
 	testImplementation("org.springframework.boot:spring-boot-starter-test:2.6.4")
 	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor:2.6.4")
 
+	implementation (files("lib/onlineverification_messages-0.0.2-SNAPSHOT.jar"))
+	testImplementation (files("lib/onlineverification_messages-0.0.2-SNAPSHOT.jar"))
+
 	//Language
 	implementation ("org.jetbrains.kotlin:kotlin-stdlib")
 	implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")

@@ -8,5 +8,4 @@ class ApplicationPropertiesFile() {
     lateinit var redisHost: String
     lateinit var configFileFolderPath: String
     lateinit var validationServiceIdentityUri: String
-    lateinit var hostUri: String
 }

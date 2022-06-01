@@ -3,7 +3,7 @@ version: "3.9"
 
 services:
   stub-service:
-    image: "stevekellaway/airline_stub:latest"
+    image: "airline_stub:latest"
     ports:
       - "7001:7001"
     depends_on:

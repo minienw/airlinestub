@@ -1,6 +1,6 @@
 package nl.rijksoverheid.minienw.travelvalidation.airlinestub
 
-import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.token.ValidationInitializeRequestBody
+import nl.rijksoverheid.minienw.travelvalidation.api.data.initialize.ValidationInitializeRequestBody
 import org.bouncycastle.util.encoders.Base64
 import org.bouncycastle.util.encoders.DecoderException
 import org.springframework.stereotype.Component

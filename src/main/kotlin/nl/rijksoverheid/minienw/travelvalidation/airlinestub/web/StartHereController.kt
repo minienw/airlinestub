@@ -3,13 +3,12 @@ package nl.rijksoverheid.minienw.travelvalidation.airlinestub.web
 import com.google.gson.Gson
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
-import nl.rijksoverheid.minienw.travelvalidation.airlinestub.CryptoKeyConverter
 import nl.rijksoverheid.minienw.travelvalidation.airlinestub.IApplicationSettings
 import nl.rijksoverheid.minienw.travelvalidation.airlinestub.ISessionRepository
-import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.identity.IdentityResponse
-import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.token.InitiatingQrPayload
-import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.token.InitiatingQrTokenPayload
 import nl.rijksoverheid.minienw.travelvalidation.airlinestub.services.SessionInfo
+import nl.rijksoverheid.minienw.travelvalidation.api.data.identity.*
+import nl.rijksoverheid.minienw.travelvalidation.api.data.token.*
+import nl.rijksoverheid.minienw.travelvalidation.validationservice.services.CryptoKeyConverter
 import org.bouncycastle.util.encoders.Base64
 
 import org.springframework.stereotype.Controller
@@ -87,9 +86,9 @@ class StartHereController(
 
         val initiatingQrTokenPayload = InitiatingQrTokenPayload(
             issuer = "http://kellair.com",
-            iat = snapshot.epochSecond,
-            sub= UUID.randomUUID().toString().replace("-","").uppercase(),
-            exp= snapshot.epochSecond + 100 * 24 * 3600
+            whenIssued = snapshot.epochSecond,
+            subject = UUID.randomUUID().toString().replace("-","").uppercase(),
+            whenExpires = snapshot.epochSecond + 100 * 24 * 3600
         )
 
         val initiatingQrTokenPayloadJson = Gson().toJson(initiatingQrTokenPayload)
@@ -105,7 +104,7 @@ class StartHereController(
         val initiatingQrPayload = InitiatingQrPayload(
 
         serviceIdentity = readIdentityFile().id,
-            subject = initiatingQrTokenPayload.sub,
+            subject = initiatingQrTokenPayload.subject,
             consent = "By clicking “Upload” and selecting a QR code you will be sending you DCC containing personal data to the server that will validate it for your travel. Make sure you expect to do so. If you are not checking in for a trip abroad, close your browser screen.;By selecting OK you will be sending the validation result containg personal data to the transport company. Only do so if you are actually checking in.",
             privacyUrl = "privacy policy url...",
             token = subjectJwt,

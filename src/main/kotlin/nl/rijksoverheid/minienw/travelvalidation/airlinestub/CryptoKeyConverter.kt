@@ -1,7 +1,7 @@
-package nl.rijksoverheid.minienw.travelvalidation.airlinestub
+package nl.rijksoverheid.minienw.travelvalidation.validationservice.services
 
 import io.jsonwebtoken.SignatureAlgorithm
-import nl.rijksoverheid.minienw.travelvalidation.airlinestub.data.PublicKeyJwk
+import nl.rijksoverheid.minienw.travelvalidation.api.data.*
 import org.bouncycastle.util.encoders.Base64
 import org.bouncycastle.util.io.pem.PemObject
 import org.bouncycastle.util.io.pem.PemWriter
@@ -47,7 +47,7 @@ class CryptoKeyConverter {
 //        }
 
         fun decodeAsn1DerPkcs1X509ToPublicKey(algorithm: String, buffer: ByteArray): PublicKey {
-            val keyFactory: KeyFactory = KeyFactory.getInstance(algorithm)
+            val keyFactory: KeyFactory = KeyFactory.getInstance(algorithm, "BC")
             val keySpec = X509EncodedKeySpec(buffer)
             return keyFactory.generatePublic(keySpec)
         }
@@ -57,12 +57,12 @@ class CryptoKeyConverter {
          * */
         fun encodeJwkX5c(publicKey: PublicKey): String = encodeAsn1DerPkcs1X509Base64(publicKey)
 
-        fun decodeJwkX5c(publicKey: PublicKeyJwk): PublicKey
+        fun decodeSigningJwkX5c(publicKey: PublicKeyJwk): PublicKey
         {
             if (publicKey.alg.isNullOrBlank())
                 throw IllegalArgumentException("JWK alg value missing.")
 
-            if (publicKey.x5c.size == 0)
+            if (publicKey.x5c.isEmpty())
                 throw IllegalArgumentException("JWK x5c value missing.")
 
             var sigAlg: SignatureAlgorithm
@@ -170,10 +170,14 @@ class CryptoKeyConverter {
 
         fun encodeAsn1DerPkcs1X509Base64(key: PublicKey): String = Base64.toBase64String(key.encoded)
         fun encodeAsn1DerPkcs1X509Pem(key: PublicKey): String = encodePem("PUBLIC KEY", key.encoded)
+
         fun decodeAsn1DerPkcs1X509PemPublicKey(value: String): PublicKey {
             var stripped = decodePem("PUBLIC KEY", value)
-
             return decodeAsn1DerPkcs1X509Base64ToPublicKey("RSA", stripped)
+        }
+
+        fun decodeAsn1DerPkcs1X509PemEllipticCurvePublicKey(value: String): PublicKey {
+            return decodeAsn1DerPkcs1X509Base64ToPublicKey("EC", value)
         }
 
 //        //For X509s in JWKs
