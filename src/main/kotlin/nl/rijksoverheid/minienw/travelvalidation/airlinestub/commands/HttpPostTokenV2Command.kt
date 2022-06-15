@@ -117,8 +117,7 @@ class HttpPostTokenV2Command(
 
         if (response.statusCode() != HttpStatus.OK.value())
         {
-            logger.error("POST to ${initUri} failed with $response")
-            throw Error("POST to ${initUri} failed with $response")
+            logger.error("POST to ${initUri} failed with ${response.statusCode()} and body ${response.body()}")
         }
 
         val validationEncryptionJwk = findEncryptionKey(validationIdentity)
