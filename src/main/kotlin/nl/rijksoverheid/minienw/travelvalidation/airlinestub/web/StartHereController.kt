@@ -1,6 +1,7 @@
 package nl.rijksoverheid.minienw.travelvalidation.airlinestub.web
 
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import nl.rijksoverheid.minienw.travelvalidation.airlinestub.IApplicationSettings
@@ -30,6 +31,7 @@ data class TripArgsViewModel
 (
     var message: String?,
     var tokenJson: String?,
+    var payloadJson: String?,
     var startingUrl: String?,
     var validationStatusUrl: String?
 )
@@ -45,7 +47,7 @@ class StartHereController(
     @GetMapping("/start")
     fun send(model: Model): String? {
         model.addAttribute("tripArgs", TripArgs("DE", "NL"))
-        model.addAttribute("tripArgsViewModel", TripArgsViewModel("","","",""))
+        model.addAttribute("tripArgsViewModel", TripArgsViewModel("","","","",""))
         return "start/index"
     }
 
@@ -65,12 +67,20 @@ class StartHereController(
     @PostMapping("/start/update")
     fun messageSend(model: Model, @ModelAttribute("tripArgs") tripArgs:TripArgs): String?
     {
-        val initiatingQrPayload = createExampleInitiatingToken()
-        val tokenJson = Gson().toJson(initiatingQrPayload)
+        val initiatingQrTokenPayload = createInitiatingQrTokenPayload(Instant.now()) //="white-space: pre"ingToken()
+        val initiatingQrPayload = createExampleInitiatingToken(initiatingQrTokenPayload)
+
+        val jsonWriter = GsonBuilder()
+            .setPrettyPrinting()
+            .create()
+
+        val payloadJson = jsonWriter.toJson(initiatingQrPayload)
+        val tokenJson = jsonWriter.toJson(initiatingQrTokenPayload)
+
         repo.save(SessionInfo(initiatingQrPayload.subject, tripArgs, null))
         val startingUrl = "${appSettings.walletProcessUrl}/${Base64.toBase64String(tokenJson.toByteArray(Charsets.UTF_8))}"
         val statusUrl = "/status/${initiatingQrPayload.subject}"
-        model["tripArgsViewModel"] = TripArgsViewModel("", tokenJson, startingUrl, statusUrl)
+        model["tripArgsViewModel"] = TripArgsViewModel("", tokenJson, payloadJson, startingUrl, statusUrl)
         return "start/index"
     }
 
@@ -80,17 +90,8 @@ class StartHereController(
         return doc
     }
 
-    private fun createExampleInitiatingToken(): InitiatingQrPayload
+    private fun createExampleInitiatingToken(initiatingQrTokenPayload: InitiatingQrTokenPayload): InitiatingQrPayload
     {
-        val snapshot = Instant.now()
-
-        val initiatingQrTokenPayload = InitiatingQrTokenPayload(
-            issuer = "http://kellair.com",
-            whenIssued = snapshot.epochSecond,
-            subject = UUID.randomUUID().toString().replace("-","").uppercase(),
-            whenExpires = snapshot.epochSecond + 100 * 24 * 3600
-        )
-
         val initiatingQrTokenPayloadJson = Gson().toJson(initiatingQrTokenPayload)
         val privateKeyPem = File(appSettings.configFileFolderPath, "accesstokensign-privatekey-1.pem").readText()
         val privateKey = CryptoKeyConverter.decodeAsn1DerPkcs8PemPrivateKey(privateKeyPem)
@@ -101,8 +102,7 @@ class StartHereController(
             .signWith(privateKey, SignatureAlgorithm.RS256)
             .compact()
 
-        val initiatingQrPayload = InitiatingQrPayload(
-
+        return InitiatingQrPayload(
         serviceIdentity = readIdentityFile().id,
             subject = initiatingQrTokenPayload.subject,
             consent = "By clicking “Upload” and selecting a QR code you will be sending you DCC containing personal data to the server that will validate it for your travel. Make sure you expect to do so. If you are not checking in for a trip abroad, close your browser screen.;By selecting OK you will be sending the validation result containg personal data to the transport company. Only do so if you are actually checking in.",
@@ -110,6 +110,12 @@ class StartHereController(
             token = subjectJwt,
             serviceProvider = "Kellair"
         )
-        return initiatingQrPayload
     }
+
+    private fun createInitiatingQrTokenPayload(snapshot: Instant) = InitiatingQrTokenPayload(
+        issuer = "https://kellair.com",
+        whenIssued = Instant.now().epochSecond,
+        subject = UUID.randomUUID().toString().replace("-", "").uppercase(),
+        whenExpires = snapshot.epochSecond + 100 * 24 * 3600
+    )
 }

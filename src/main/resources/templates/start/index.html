@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Create Trip/Traveller</title>
@@ -21,7 +21,7 @@
 
             <div class="form-group">
                 <label for="toCountry">To Country</label>:
-                <input class="form-control" id="toCountry" name="toCountry" placeholder="toCountry" type="text"th:value="${tripArgs.getToCountry()}"/>
+                <input class="form-control" id="toCountry" name="toCountry" placeholder="toCountry" type="text" th:value="${tripArgs.getToCountry()}"/>
             </div>
 
             <div class="form-group">
@@ -36,7 +36,8 @@
         <tr><td><span th:text="${tripArgsViewModel.getMessage()}"> Message </span></td></tr>
 <!--        <tr><td><span th:text="${tripArgs.getFromCountry()}"> From </span></td></tr>-->
 <!--        <tr><td><span th:text="${tripArgs.getToCountry()}"> To </span></td></tr>-->
-        <tr><td><span th:text="${tripArgsViewModel.getTokenJson()}"> Token Json </span></td></tr>
+        <tr><td><span th:text="${tripArgsViewModel.getTokenJson()}" style="white-space: pre"> Token Json </span></td></tr>
+        <tr><td><span th:text="${tripArgsViewModel.getPayloadJson()}" style="white-space: pre"> Token Json </span></td></tr>
         <tr><td><a th:href="${tripArgsViewModel.getStartingUrl()}" target="_blank">Validate</a></td></tr>
         <tr><td><a th:href="${tripArgsViewModel.getValidationStatusUrl()}" target="_blank">Get Validation Status</a></td></tr>
         </table>
