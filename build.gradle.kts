@@ -52,14 +52,11 @@ dependencies {
 	//Persistence
 	implementation("redis.clients:jedis:4.1.1")
 
-
 	//data formats
 	implementation ("com.google.code.gson:gson:2.9.0")
-	//implementation ("org.json:json:20211205")
 
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin") //:2.13.1
 	implementation("com.fasterxml.jackson.core:jackson-databind")
-//	compileOnly ("org.projectlombok:lombok:1.18.22")
 
 	//crypto
 	implementation ("org.bouncycastle:bcprov-jdk15on:1.70")
@@ -72,24 +69,10 @@ dependencies {
 
 	implementation ("io.jsonwebtoken:jjwt-api:0.11.2")
 	runtimeOnly ("io.jsonwebtoken:jjwt-impl:0.11.2")
-	//runtimeOnly ("io.jsonwebtoken:jjwt-jackson:0.11.2")
-	//-OR-
 	runtimeOnly ("io.jsonwebtoken:jjwt-gson:0.11.2")// for gson
 
-	//Backend/imported projects
-//	implementation ("com.squareup.okio:okio:3.0.0")
-//	implementation ("com.squareup.moshi:moshi:1.13.0")
-//	implementation ("com.squareup.okhttp3:okhttp:4.9.3")
-//	implementation ("com.squareup.retrofit2:retrofit:2.9.0")
-
-
 	//Decoding HCERT
-	implementation("com.augustcellars.cose:cose-java:1.1.0")
-	implementation("io.github.ehn-digital-green-development:base45:0.0.2")
-
-	//Decoding CBOR - fails
-	//implementation("se.digg.dgc:dgc-schema:1.0.1")
-	//implementation("se.digg.dgc:dgc-create-callback:0.0.2")
+	implementation("io.github.ehn-digital-green-development:base45:0.0.3")
 
 	//Swagger
 	implementation ("io.springfox:springfox-boot-starter:3.0.0")

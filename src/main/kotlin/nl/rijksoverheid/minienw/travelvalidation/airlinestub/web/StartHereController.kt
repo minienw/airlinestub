@@ -69,18 +69,19 @@ class StartHereController(
     {
         val initiatingQrTokenPayload = createInitiatingQrTokenPayload(Instant.now()) //="white-space: pre"ingToken()
         val initiatingQrPayload = createExampleInitiatingToken(initiatingQrTokenPayload)
-
-        val jsonWriter = GsonBuilder()
-            .setPrettyPrinting()
-            .create()
-
-        val payloadJson = jsonWriter.toJson(initiatingQrPayload)
-        val tokenJson = jsonWriter.toJson(initiatingQrTokenPayload)
-
+        val tokenJson = Gson().toJson(initiatingQrPayload)
         repo.save(SessionInfo(initiatingQrPayload.subject, tripArgs, null))
         val startingUrl = "${appSettings.walletProcessUrl}/${Base64.toBase64String(tokenJson.toByteArray(Charsets.UTF_8))}"
         val statusUrl = "/status/${initiatingQrPayload.subject}"
-        model["tripArgsViewModel"] = TripArgsViewModel("", tokenJson, payloadJson, startingUrl, statusUrl)
+
+        val prettyJsonWriter = GsonBuilder()
+            .setPrettyPrinting()
+            .create()
+
+        val prettyPayloadJson = prettyJsonWriter.toJson(initiatingQrPayload)
+        val prettyTokenJson = prettyJsonWriter.toJson(initiatingQrTokenPayload)
+
+        model["tripArgsViewModel"] = TripArgsViewModel("", prettyTokenJson, prettyPayloadJson, startingUrl, statusUrl)
         return "start/index"
     }
 
