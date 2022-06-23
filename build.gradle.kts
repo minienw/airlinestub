@@ -76,6 +76,7 @@ dependencies {
 
 	//Swagger
 	implementation ("io.springfox:springfox-boot-starter:3.0.0")
+	implementation("io.springfox:springfox-oas:3.0.0")
 
 }
 

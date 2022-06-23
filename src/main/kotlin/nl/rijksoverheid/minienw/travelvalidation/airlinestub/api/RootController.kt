@@ -17,15 +17,15 @@ class RootController {
         return ResponseEntity( "<html>Swagger is <a href=\"swagger-ui//index.html\">here</a><html>",HttpStatus.OK)
     }
 
-    @GetMapping("/fakeInitiatingQrPayload")
-    fun showInitiatingQrPayload() : ResponseEntity<InitiatingQrPayload>
-    {
-        return ResponseEntity(HttpStatus.I_AM_A_TEAPOT);
-    }
-
-    @GetMapping("/fakeConfirmationTokenPayload")
-    fun showConfirmationTokenPayload() : ResponseEntity<ConfirmationTokenPayload>
-    {
-        return ResponseEntity(HttpStatus.I_AM_A_TEAPOT);
-    }
+//    @GetMapping("/fakeInitiatingQrPayload")
+//    fun showInitiatingQrPayload() : ResponseEntity<InitiatingQrPayload>
+//    {
+//        return ResponseEntity(HttpStatus.I_AM_A_TEAPOT);
+//    }
+//
+//    @GetMapping("/fakeConfirmationTokenPayload")
+//    fun showConfirmationTokenPayload() : ResponseEntity<ConfirmationTokenPayload>
+//    {
+//        return ResponseEntity(HttpStatus.I_AM_A_TEAPOT);
+//    }
 }
