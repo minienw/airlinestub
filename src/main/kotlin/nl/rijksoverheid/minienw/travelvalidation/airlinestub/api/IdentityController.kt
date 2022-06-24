@@ -21,7 +21,6 @@ class IdentityController(
     val appSettings : IApplicationSettings
 )
 {
-
     @GetMapping("/identity")
     @ApiOperation(value = "Get the configuration information about the hosted services.", authorizations = arrayOf<Authorization>())
     @ApiResponses(value = [

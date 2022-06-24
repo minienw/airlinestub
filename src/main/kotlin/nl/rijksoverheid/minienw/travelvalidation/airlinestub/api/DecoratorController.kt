@@ -35,7 +35,6 @@ class DecoratorController(
 {
     @PostMapping("/token")
     @ApiOperation(value = "Post the initiating token and receive the Validation Access Token and encryption parameters.")
-    //@ApiResponse(code = 200, message = "Options for the endpoint", responseHeaders = {@ResponseHeader(name = "Allow", description = "Verbs allowed", response = String.class)})})
     @ApiResponses(value = [
         ApiResponse(
             responseCode = "200", description = "OK",
