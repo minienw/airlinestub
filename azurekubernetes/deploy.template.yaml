@@ -51,7 +51,7 @@ spec:
         "beta.kubernetes.io/os": linux
       containers:
         - name: airlinestub
-          image: stevekellaway/airline_stub:latest
+          image: ghcr.io/minienw/airline_stub:latest
           imagePullPolicy: "Always"
           resources:
             requests:
