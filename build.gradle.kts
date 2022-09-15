@@ -43,14 +43,14 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 
 	//Logging
-	implementation("org.apache.logging.log4j:log4j-core:2.17.2")
-	implementation("org.apache.logging.log4j:log4j-api:2.17.2")
+	implementation("org.apache.logging.log4j:log4j-core:2.18.0")
+	implementation("org.apache.logging.log4j:log4j-api:2.18.0")
 
 	//Binary references
 	implementation (files("lib/certlogic-kotlin-v0.9.0-kotlin.jar"))
 
 	//Persistence
-	implementation("redis.clients:jedis:4.1.1")
+	implementation("redis.clients:jedis:4.2.3")
 
 	//data formats
 	implementation ("com.google.code.gson:gson:2.9.0")
@@ -67,9 +67,9 @@ dependencies {
 	testImplementation ("org.bouncycastle:bcprov-ext-jdk15on:1.70")
 	testImplementation ("org.bouncycastle:bcpkix-jdk15on:1.70")
 
-	implementation ("io.jsonwebtoken:jjwt-api:0.11.2")
-	runtimeOnly ("io.jsonwebtoken:jjwt-impl:0.11.2")
-	runtimeOnly ("io.jsonwebtoken:jjwt-gson:0.11.2")// for gson
+	implementation ("io.jsonwebtoken:jjwt-api:0.11.5")
+	runtimeOnly ("io.jsonwebtoken:jjwt-impl:0.11.5")
+	runtimeOnly ("io.jsonwebtoken:jjwt-gson:0.11.5")// for gson
 
 	//Decoding HCERT
 	implementation("io.github.ehn-digital-green-development:base45:0.0.3")

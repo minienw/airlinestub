@@ -26,10 +26,11 @@ class AirlineSigningKeyResolverAdapter: SigningKeyResolverAdapter {
     override fun resolveSigningKey(jwsHeader: JwsHeader<*>, claims: Claims?): PublicKey?
     {
         val found = _airlineSigningKeyProvider.get(jwsHeader.keyId, jwsHeader.algorithm)
-            ?: return null
 
-        if (found == null)
+        if (found == null) {
             logger.warn("Could not find public signing key ${jwsHeader.keyId} for ${jwsHeader.algorithm}.")
+            return null;
+        }
         else
             logger.info("Found public signing key ${jwsHeader.keyId} for ${jwsHeader.algorithm}.")
 

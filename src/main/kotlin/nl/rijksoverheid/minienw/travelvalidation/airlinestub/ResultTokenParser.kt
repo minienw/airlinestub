@@ -1,32 +1,36 @@
 package nl.rijksoverheid.minienw.travelvalidation.airlinestub
 
 import com.google.gson.Gson
-import io.jsonwebtoken.*
-import nl.rijksoverheid.minienw.travelvalidation.api.data.*
-import nl.rijksoverheid.minienw.travelvalidation.api.data.token.InitiatingQrTokenPayload
+import io.jsonwebtoken.JwtException
+import io.jsonwebtoken.JwtParser
+import io.jsonwebtoken.Jwts
+import io.jsonwebtoken.SigningKeyResolverAdapter
+import nl.rijksoverheid.minienw.travelvalidation.api.data.JwtHeader
+import nl.rijksoverheid.minienw.travelvalidation.api.data.ValidationAccessTokenPayload
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.stereotype.Component
+import org.springframework.stereotype.Service
 import javax.validation.Validation
 import javax.validation.Validator
 import javax.validation.ValidatorFactory
 
-@Component
-class InitiatingTokenParser(
-    private val timeProvider: IDateTimeProvider,
-    private val airlineSigningKeyResolverAdapter: SigningKeyResolverAdapter,
+@Service
+class ResultTokenParser(
+//    private val appSettings: IApplicationSettings,
+//    private val timeProvider: IDateTimeProvider,
+    private val validationSigningKeyResolverAdapter: SigningKeyResolverAdapter,
 )
 {
-    fun parse(value: String): ResponseEntity<InitiatingQrTokenPayload>
+    fun parse(value: String): ResponseEntity<ValidationAccessTokenPayload>
     {
-        val logger = LoggerFactory.getLogger(InitiatingTokenParser::class.java)
+        val logger = LoggerFactory.getLogger(ResultTokenParser::class.java)
 
         val errors = ArrayList<String>()
         val stripped = if (value.startsWith("bearer", true)) value.substring(6).trim() else value
 
         try{
-            var parsed = build().parse(stripped)
+            val parsed = build().parse(stripped)
             val gson = Gson()
 
             val header = gson.fromJson(gson.toJson(parsed.header), JwtHeader::class.java)
@@ -39,11 +43,12 @@ class InitiatingTokenParser(
                 errors.add("Algorithm missing.")
 //            else
 //            {
-//                if (!appSettings.validationAccessTokentSigAlgorithms.any { it.equals(header.alg, ignoreCase = true) })
+//                if (!appSettings.validationAccessTokenSignatureAlgorithms.any { it.equals(header.alg, ignoreCase = true) })
 //                    errors.add("Algorithm not supported.")
 //            }
 
-            val result = gson.fromJson(gson.toJson(parsed.body), InitiatingQrTokenPayload::class.java)
+            val toJson = gson.toJson(parsed.body)
+            val result = gson.fromJson(toJson, ValidationAccessTokenPayload::class.java)
 
             //TODO may be worth doing by hand instead.
             val factory: ValidatorFactory = Validation.buildDefaultValidatorFactory()
@@ -52,32 +57,32 @@ class InitiatingTokenParser(
             for(i in validationErrors)
                 errors.add(i.toString())
 
-            if (result.whenIssued > timeProvider.snapshot().epochSecond)
-                errors.add("Issued in the future.")
+//            if (result.iat > timeProvider.snapshot().epochSecond)
+//                errors.add("Issued in the future.")
 
             //TODO audience == validate url outside...
             //TODO subject == url subject from url... outside...
 
             if (errors.isNotEmpty()) {
-                var sb = StringBuilder("Token is invalid:\n")
+                val sb = StringBuilder("Token is invalid:\n")
                 for(i in errors) sb.append(i)
-                logger.info(sb.toString());
+                logger.info(sb.toString())
                 return ResponseEntity(HttpStatus.UNAUTHORIZED)
             }
 
-            return ResponseEntity(result,HttpStatus.OK)
+            return ResponseEntity(result, HttpStatus.OK)
 
         } catch(e: JwtException) {
-            logger.info(e.toString());
+            logger.info(e.toString())
             return ResponseEntity(HttpStatus.UNAUTHORIZED)
         }
     }
 
     private fun build() : JwtParser {
         val result = Jwts.parserBuilder()
-        result.setAllowedClockSkewSeconds(120) //TODO setting?
-        //result.setAllowedClockSkewSeconds(10000000) //TODO setting?
-        result.setSigningKeyResolver(airlineSigningKeyResolverAdapter)
+        //result.setAllowedClockSkewSeconds(120) //TODO setting?
+        result.setAllowedClockSkewSeconds(10000000) //TODO setting?
+        result.setSigningKeyResolver(validationSigningKeyResolverAdapter)
         //TODO .setClock() //Wrap time provider Tests?
         return result.build()
     }
