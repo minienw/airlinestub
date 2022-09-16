@@ -6,7 +6,7 @@ import io.jsonwebtoken.JwtParser
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SigningKeyResolverAdapter
 import nl.rijksoverheid.minienw.travelvalidation.api.data.JwtHeader
-import nl.rijksoverheid.minienw.travelvalidation.api.data.ValidationAccessTokenPayload
+import nl.rijksoverheid.minienw.travelvalidation.api.data.validate.ResultTokenPayload
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -19,10 +19,10 @@ import javax.validation.ValidatorFactory
 class ResultTokenParser(
 //    private val appSettings: IApplicationSettings,
 //    private val timeProvider: IDateTimeProvider,
-    private val validationSigningKeyResolverAdapter: SigningKeyResolverAdapter,
+    private val validationSigningKeyResolverAdapter: SigningKeyResolverAdapter
 )
 {
-    fun parse(value: String): ResponseEntity<ValidationAccessTokenPayload>
+    fun parse(value: String): ResponseEntity<ResultTokenPayload>
     {
         val logger = LoggerFactory.getLogger(ResultTokenParser::class.java)
 
@@ -48,7 +48,7 @@ class ResultTokenParser(
 //            }
 
             val toJson = gson.toJson(parsed.body)
-            val result = gson.fromJson(toJson, ValidationAccessTokenPayload::class.java)
+            val result = gson.fromJson(toJson, ResultTokenPayload::class.java)
 
             //TODO may be worth doing by hand instead.
             val factory: ValidatorFactory = Validation.buildDefaultValidatorFactory()
