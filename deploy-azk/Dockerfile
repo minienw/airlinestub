@@ -1,4 +1,6 @@
 FROM ghcr.io/minienw/airline_stub:latest_noconfig
+RUN adduser stubuser -H -D
+USER stubuser
 WORKDIR /service-bin
 COPY application.properties .
 COPY identity.json .
